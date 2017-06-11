@@ -7,50 +7,29 @@ This file creates your application.
 """
 
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
 
 
-###
-# Routing for your application.
-###
-
 @app.route('/')
 def home():
     """Render website's home page."""
     # return render_template('home.html')
-    return 'Holla'
 
-
-@app.route('/about/')
-def about():
-    """Render the website's about page."""
-    return render_template('about.html')
-
-
-###
-# The functions below should be applicable to all Flask apps.
-###
-
-@app.route('/<file_name>.txt')
-def send_text_file(file_name):
-    """Send your static text file."""
-    file_dot_text = file_name + '.txt'
-    return app.send_static_file(file_dot_text)
-
-
-@app.after_request
-def add_header(response):
-    """
-    Add headers to both force latest IE rendering engine or Chrome Frame,
-    and also to cache the rendered page for 10 minutes.
-    """
-    response.headers['X-UA-Compatible'] = 'IE=Edge,chrome=1'
-    response.headers['Cache-Control'] = 'public, max-age=600'
-    return response
+    items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
+    prices = [5.50, 6.50, 7.50]
+    subtotal = sum(prices)
+    tax = subtotal * 0.07
+    total = subtotal + tax
+    bill_dict = {
+        'subtotal': subtotal,
+        'tax': tax,
+        'total': total
+    }
+    return jsonify(bill_dict)
 
 
 @app.errorhandler(404)
