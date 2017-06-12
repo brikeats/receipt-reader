@@ -25,7 +25,7 @@ def home():
     tax = subtotal * 0.07
     total = subtotal + tax
     bill_dict = {
-        'items': [{'name': item, 'price': price, 'quanity': 1} 
+        'items': [{'name': item, 'price': price, 'quantity': 1} 
                   for item, price in zip(items, prices)],
         'subtotal': subtotal,
         'tax': tax,
