@@ -1,24 +1,11 @@
-"""
-Flask Documentation:     http://flask.pocoo.org/docs/
-Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
-Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
-
-This file creates your application.
-"""
-
 import os
-from flask import Flask, render_template, jsonify
-
-app = Flask(__name__)
-
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
+import numpy as np
+from PIL import Image
+from flask import Flask, render_template, jsonify, request
 
 
-@app.route('/')
-def home():
-    """Render website's home page."""
-    # return render_template('home.html')
-
+def im_to_json(im):
+    """Here's where the magic happens"""
     items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
     prices = [5.50, 6.50, 7.50]
     subtotal = sum(prices)
@@ -34,11 +21,16 @@ def home():
     return jsonify(bill_dict)
 
 
+app = Flask(__name__)
 
-@app.errorhandler(404)
-def page_not_found(error):
-    """Custom 404 page."""
-    return render_template('404.html'), 404
+@app.route("/", methods=["POST"])
+def home():
+    if 'file' in request.files:
+        im = np.asarray(Image.open(request.files['file']), dtype=np.uint8)
+        return im_to_json(im)
+    else:
+        # curl -F "file=@/home/brian/Pictures/lena.jpg" http://0.0.0.0:5000/
+        return 'Request should have an image file attached'
 
 
 if __name__ == '__main__':
