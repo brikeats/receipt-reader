@@ -32,8 +32,8 @@ def home():
         im = np.asarray(Image.open(request.files['file']), dtype=np.uint8)
         return im_to_json(im)
     else:
-        # curl -F "file=@/home/brian/Pictures/lena.jpg" http://0.0.0.0:5000/
-        return 'Request should have an image file attached'
+        return im_to_json(im)
+        # return 'Request should have an image file attached'
 
 
 if __name__ == '__main__':
