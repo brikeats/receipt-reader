@@ -32,7 +32,7 @@ def home():
         im = np.asarray(Image.open(request.files['file']), dtype=np.uint8)
         return im_to_json(im)
     else:
-        return im_to_json(im)
+        return im_to_json(None)
         # return 'Request should have an image file attached'
 
 
