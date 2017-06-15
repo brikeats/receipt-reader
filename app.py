@@ -4,6 +4,9 @@ from PIL import Image
 from flask import Flask, render_template, jsonify, request
 
 
+# curl -F "file=@/home/brian/Pictures/lena.jpg" http://0.0.0.0:5000/
+
+
 def im_to_json(im):
     """Here's where the magic happens"""
     items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
@@ -23,7 +26,7 @@ def im_to_json(im):
 
 app = Flask(__name__)
 
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["POST", "GET"])
 def home():
     if 'file' in request.files:
         im = np.asarray(Image.open(request.files['file']), dtype=np.uint8)
