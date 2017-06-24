@@ -16,9 +16,12 @@ from skimage.transform import resize
 import os
 
 
+MAX_SIDE_LENGTH = 1024
+    
+
 def resize_im(im, max_side):
     """Resize an image so the its longer side is the specified length"""
-    ratio = float(max_side_length) / max(im.shape[:2])
+    ratio = float(max_side) / max(im.shape[:2])
     new_h = int(round(ratio*im.shape[0]))
     new_w = int(round(ratio*im.shape[1]))
     return resize(im, (new_h, new_w))
@@ -147,10 +150,10 @@ def get_receipt_edges(gray):
     median = rank.median(gray, disk(11))
     
     # Divide into halves
-    top_im = median[:int(im.shape[0]/2), :]
-    bottom_im = median[int(im.shape[0]/2):, :]
-    left_im = median[:, :int(im.shape[1]/2)]
-    right_im = median[:, int(im.shape[1]/2):]
+    top_im = median[:int(median.shape[0]/2), :]
+    bottom_im = median[int(median.shape[0]/2):, :]
+    left_im = median[:, :int(median.shape[1]/2)]
+    right_im = median[:, int(median.shape[1]/2):]
 
     # Rotate so center is down, detect best horizontal line
     top_line = best_horizontal_line(top_im)
@@ -170,13 +173,9 @@ def get_receipt_edges(gray):
     return top_line, right_line, bottom_line, left_line
 
 
-if __name__=='__main__':
+def preprocess_image(im):
 
-    max_side_length = 1024
-    in_fn = '../data/receipt.jpg'
-
-    im = plt.imread(in_fn)
-    im = resize_im(im, max_side_length)
+    im = resize_im(im, MAX_SIDE_LENGTH)
     gray = rgb2gray(im)
 
     # Get the edges of the receipt
@@ -204,6 +203,18 @@ if __name__=='__main__':
     warped_gray = rgb2gray(warped_im)
     enhanced_gray = img_as_ubyte(adjust_log(warped_gray))
 
+    return enhanced_gray
+
+
+
+if __name__=='__main__':
+
+    in_fn = '../data/receipt.jpg'
+
+    im = plt.imread(in_fn)
+    print(im.shape)
+    enhanced_gray = preprocess_image(im)
+    
 
     fname, ext = os.path.splitext(in_fn)
     out_fn = fname + '_preprocessed' + ext
