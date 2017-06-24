@@ -5,6 +5,9 @@ from flask import Flask, render_template, jsonify, request
 from preprocess import preprocess_image
 from read_receipt_image import read_receipt
 import io
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 
 
 # curl -F "file=@/home/brian/Pictures/lena.jpg" http://0.0.0.0:5000/
