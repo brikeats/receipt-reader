@@ -15,37 +15,11 @@ if not API_KEY:
     print('You need to get an azure CV api key and assign it to the environmental variable AZURE_CV_KEY')
 
 
-def plot_bbox(bbox, color='b', parent_bbox=None):
-        
-    x0, y0, w, h = list(map(int, bbox.split(',')))
-    if parent_bbox:
-        x0 -= list(map(int, parent_bbox.split(',')))[0]
-        y0 -= list(map(int, parent_bbox.split(',')))[1]
-    plt.plot([x0, x0 + w], [y0, y0], color+'-')  # top
-    plt.plot([x0, x0 + w], [y0 + h, y0 + h], color+'-')  # bottom
-    plt.plot([x0, x0], [y0, y0 + h], color+'-')  # left
-    plt.plot([x0 + w, x0 + w], [y0, y0 + h], color+'-')  # right
-
-    
-def show_boxes(im, response_dict):
-    plt.figure(figsize=(10,10))
-    plt.imshow(im, cmap='gray')
-    plt.autoscale(False)
-    plt.axis('off')
-    for region in response_dict['regions']:    
-        for line in region['lines']:
-            plot_bbox(line['boundingBox'], 'r')
-        plot_bbox(region['boundingBox'])
-        
-
-def azure_ocr(im_fn, key=API_KEY):
+def azure_ocr(im_data, key=API_KEY):
     """
     Send image data to azure computer vision api for OCR.
     """
     
-    with open(fn, 'rb') as f:
-        im_data = f.read()
-
     headers = {
     #     'Content-Type': 'application/json',
         'Content-Type': 'application/octet-stream',   
@@ -100,19 +74,12 @@ def mean_line_height(line):
     return sum(map(float, word_heights)) / len(word_heights)
 
 
-def read_receipt(fn):
+def read_receipt(im_data):
     
     # Hit the Azure API
-    response_dict = azure_ocr(fn)
+    response_dict = azure_ocr(im_data)
     if not response_dict:
         raise ValueError('There was a problem reading your photo')
-
-        
-    # Correct orientation
-    im = plt.imread(fn)
-    if response_dict['orientation'] == 'Left':
-        im = np.rot90(im, 3)
-    # TODO: handle other cases
 
 
     # Make a list of words that are numbers
@@ -211,7 +178,7 @@ def read_receipt(fn):
         
         if item.lower() in ['total']:  # TODO: include common misspellings
             receipt_contents['total'] = price
-        elif item.lower() in ['subtotal', 'sub total', 'sub-total']:
+        elif 'subtotal' in item.lower().replace('-','').replace(' ',''):
             receipt_contents['subtotal'] = price
         elif 'tax' in item.lower():
             receipt_contents['tax'] = price
@@ -239,8 +206,16 @@ def read_receipt(fn):
 
 if __name__=='__main__':
 
+
+    import io
     fn = '../data/receipt_preprocessed.jpg'
-    receipt_dict = read_receipt(fn)
+    # buf = io.BytesIO()
+    # plt.imsave(buf, im)
+    # im_data = buf.getvalue()
+    with open(fn, 'rb') as f:
+        im_data = f.read()
+
+    receipt_dict = read_receipt(im_data)
     for key, val in receipt_dict.items():
         print(key, val)
         print()
