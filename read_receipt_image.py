@@ -6,6 +6,8 @@ import numpy as np
 from skimage.transform import rescale
 # from skimage.color import rgb2gray
 from skimage.measure import LineModelND, ransac
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 
