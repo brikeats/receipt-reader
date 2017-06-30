@@ -15,29 +15,29 @@ import matplotlib.pyplot as plt
 
 def im_to_json(im):
     """Here's where the magic happens"""
-    # items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
-    # prices = [5.50, 6.50, 7.50]
-    # subtotal = sum(prices)
-    # tax = subtotal * 0.07
-    # total = subtotal + tax
-    # bill_dict = {
-    #     'items': [{'name': item, 'price': price, 'quantity': 1} 
-    #               for item, price in zip(items, prices)],
-    #     'subtotal': subtotal,
-    #     'tax': tax,
-    #     'total': total
-    # }
+    items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
+    prices = [5.50, 6.50, 7.50]
+    subtotal = sum(prices)
+    tax = subtotal * 0.07
+    total = subtotal + tax
+    bill_dict = {
+        'items': [{'name': item, 'price': price, 'quantity': 1} 
+                  for item, price in zip(items, prices)],
+        'subtotal': subtotal,
+        'tax': tax,
+        'total': total
+    }
 
-    preprocessed_im = preprocess_image(im)
+    # preprocessed_im = preprocess_image(im)
 
 
-    # with open(fn, 'rb') as f:
-    #     im_data = f.read()
-    buf = io.BytesIO()
-    plt.imsave(buf, preprocessed_im)
-    im_data = buf.getvalue()
+    # # with open(fn, 'rb') as f:
+    # #     im_data = f.read()
+    # buf = io.BytesIO()
+    # plt.imsave(buf, preprocessed_im)
+    # im_data = buf.getvalue()
 
-    bill_dict = read_receipt(im_data)
+    # bill_dict = read_receipt(im_data)
 
     return jsonify(bill_dict)
 
