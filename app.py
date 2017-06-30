@@ -10,23 +10,12 @@ matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 
-# curl -F "file=@/home/brian/Pictures/lena.jpg" http://0.0.0.0:5000/
+# curl -F "file=@../data/receipt.jpg" https://receipt-reader-bk.herokuapp.com/
 # curl -F "file=@../data/receipt.jpg" http://0.0.0.0:5000/
 
 def im_to_json(im):
     """Here's where the magic happens"""
-    items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
-    prices = [5.50, 6.50, 7.50]
-    subtotal = sum(prices)
-    tax = subtotal * 0.07
-    total = subtotal + tax
-    bill_dict = {
-        'items': [{'name': item, 'price': price, 'quantity': 1} 
-                  for item, price in zip(items, prices)],
-        'subtotal': subtotal,
-        'tax': tax,
-        'total': total
-    }
+    
 
     # preprocessed_im = preprocess_image(im)
 
@@ -46,12 +35,27 @@ app = Flask(__name__)
 
 @app.route("/", methods=["POST", "GET"])
 def home():
-    if 'file' in request.files:
-        im = np.asarray(Image.open(request.files['file']), dtype=np.uint8)
-        return im_to_json(im)
-    else:
-        # return im_to_json(None)
-        return 'Request should have an image file attached'
+    # if 'file' in request.files:
+    #     im = np.asarray(Image.open(request.files['file']), dtype=np.uint8)
+    #     return im_to_json(im)
+    # else:
+    #     # return im_to_json(None)
+    #     return 'Request should have an image file attached'
+
+    items = ['sierra nevada stout', 'lagunitas ipa', 'founders centennial']
+    prices = [5.50, 6.50, 7.50]
+    subtotal = sum(prices)
+    tax = subtotal * 0.07
+    total = subtotal + tax
+    bill_dict = {
+        'items': [{'name': item, 'price': price, 'quantity': 1} 
+                  for item, price in zip(items, prices)],
+        'subtotal': subtotal,
+        'tax': tax,
+        'total': total
+    }
+
+    return jsonify(bill_dict)
 
 
 if __name__ == '__main__':
