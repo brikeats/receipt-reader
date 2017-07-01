@@ -51,6 +51,7 @@ def home():
         return im_to_json(im)
     else:
         # return im_to_json(None)
+        print 'Received request with no image attached'
         return 'Request should have an image file attached'
 
 
