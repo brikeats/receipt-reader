@@ -1,29 +1,9 @@
 Flask Heroku
 ============
 
-<pre><code>
+I have my API key saved in the environmental variable `AZURE_CV_KEY`. In order to get this into the heroku app (without storing it in git), use [config variables](https://devcenter.heroku.com/articles/config-vars). 
 
-
-             ##
- #########  ###
-  ##     #   ##                     :GG   DG
-  ##         ##                     :EE   EE                        ;E
-  ##         ##                     :EE  KK                         ;E
-  ##         ##                     :EE                             ;E
-  ##   #     ##     ####     ####   :EEEEEEG   KEEEE     WE  WEEE;  ;E   EE EE   EE  
-  ######     ##    ##  #f   #   #   :EE   EE  GEf;tEK  EEKK EEfiEE, ;E  fE  EE   EE  
-  ##   #     ##        #l   ##            EE  KE   tE  EK   E;   EE ;E  E,  EE   EE  
-  ##         ##       ##a    ###          EK  EEEEEEE  EK   E    KE ;EEEE   EE   EE  
-  ##         ##    ##  #s     ###         EK  EE       EK   E    KE ;E EE   EE   EE  
-  ##         ##   ##   #k       ##   E    EE  EE       EK   E,   EK ;E  KE  EE   EE  
-  ##         ##   ##   ##W  #   #:   E    EK  ;EK.,EK  EK   EE,:EE, ;E   ED KE.,EEE  
- #####      #####  ### W#   ####,         EK   ,KEEE   K#    DEEK.  iK   WK  KEEE.   
-
-
-                    github.com/zachwill/flask_heroku
-
-</code></pre>
-
+Start an app server locally with `heroku local`, and test it with `curl -F "file=<your image file>" http://0.0.0.0:5000/`. Push the app to heroku with `git push heroku master`, and test it with `curl -F "file=<your image file>" https://receipt-reader-bk.herokuapp.com/`
 
 What is this?
 -------------

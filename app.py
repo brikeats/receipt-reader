@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from PIL import Image
 from flask import Flask, render_template, jsonify, request
 from preprocess import preprocess_image
 from read_receipt_image import read_receipt
@@ -28,16 +27,14 @@ def im_to_json(im):
         'total': total
     }
 
-    # preprocessed_im = preprocess_image(im)
+    preprocessed_im = preprocess_image(im)
 
 
-    # # with open(fn, 'rb') as f:
-    # #     im_data = f.read()
-    # buf = io.BytesIO()
-    # plt.imsave(buf, preprocessed_im)
-    # im_data = buf.getvalue()
+    buf = io.BytesIO()
+    plt.imsave(buf, preprocessed_im)
+    im_data = buf.getvalue()
 
-    # bill_dict = read_receipt(im_data)
+    bill_dict = read_receipt(im_data)
 
     return jsonify(bill_dict)
 
@@ -47,7 +44,7 @@ app = Flask(__name__)
 @app.route("/", methods=["POST", "GET"])
 def home():
     if 'file' in request.files:
-        im = np.asarray(Image.open(request.data), dtype=np.uint8)
+        im = plt.imread(request.files['file'])
         return im_to_json(im)
     else:
         # return im_to_json(None)
