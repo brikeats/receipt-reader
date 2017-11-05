@@ -184,7 +184,7 @@ def read_receipt(im_data):
     receipt_contents = {'items': []}
     for item, price in items:
         
-        if item.lower() in ['total']:  # TODO: include common misspellings
+        if item.lower().startswith('total'):  # TODO: include common misspellings
             receipt_contents['total'] = price
         elif 'subtotal' in item.lower().replace('-','').replace(' ',''):
             receipt_contents['subtotal'] = price
