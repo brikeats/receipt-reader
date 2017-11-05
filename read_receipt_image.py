@@ -144,26 +144,31 @@ def read_receipt(im_data):
             try:
                 price = convert_to_float(price['text'])
             except ValueError:
-                raise NotImplementedException
+                # this probably means a non-price numerical word in the price column,
+                # e.g., a date
+                continue  
             item_name = ' '.join([word['text'] for word in other_words])
             
         elif len(price['text']) == 2:  # Probably got cents, dollars in different word
             try:
                 cents = convert_to_float(price['text'].replace(',','').replace('.',''))
             except ValueError:
-                raise NotImplementedError
+                # raise NotImplementedError
+                continue
             
             # Get other number-words on the same line
             number_words = [word for word in other_words
                             if is_possibly_numeric_word(word['text'])]
             if not number_words:  # No other numbers on this line other than 'price'
-                raise NotImplementedError
+                # raise NotImplementedError
+                continue
             
             dollar_word = number_words[-1]
             try:
                 dollars = int(dollar_word['text'].replace(',','').replace('.',''))
             except ValueError:
-                raise NotImplementedError
+                # raise NotImplementedError
+                continue
             
             price = dollars + 0.01 * cents
             item_name = ' '.join([w['text'] for w in other_words if w != dollar_word])
@@ -171,7 +176,8 @@ def read_receipt(im_data):
         
         item_name = item_name.replace(',', '')  # remove spurious commas (there are a lot)
         item_name = item_name.strip()
-        items.append((item_name, price))
+        if price < 5000 and price >= 0:
+            items.append((item_name, price))
         
         
     # Adapt for API/json
