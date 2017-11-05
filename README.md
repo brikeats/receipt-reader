@@ -1,203 +1,22 @@
-Flask Heroku
-============
+The backend of an app for reading and parsing the contents of a receipt image. `preprocess.py` reads an image file, robustly detects the receipt edges, finds the receipt corners, warps it to rectangular, scales it to a fixed size, and tweaks the contrast to improve OCR results. `read_receipt_image.py` accepts a preprocessed image, sends it to the [azure computer vision API](https://azure.microsoft.com/en-us/services/cognitive-services/computer-vision/) for OCR and word-bounding box detection, parses the OCR output to figure out which words are items and which are prices, and converts the parsed contents to JSON. `app.py` wraps the functionality in a Flask app. 
 
-I have my API key saved in the environmental variable `AZURE_CV_KEY`. In order to get this into the heroku app (without storing it in git), use [config variables](https://devcenter.heroku.com/articles/config-vars). 
+This app is live at https://receipt-reader-bk.herokuapp.com/. You can send it an image with the Unix command `curl -F "file=<your image file>" https://receipt-reader-bk.herokuapp.com/`. The response is pretty slow, preumably because I'm on heroku's free tier.
 
-Start an app server locally with `heroku local`, and test it with `curl -F "file=<your image file>" http://0.0.0.0:5000/`. Push the app to heroku with `git push heroku master`, and test it with `curl -F "file=<your image file>" https://receipt-reader-bk.herokuapp.com/`
 
-What is this?
--------------
+## Testing
 
-A template to get your [Flask](http://flask.pocoo.org/) app running on
-[Heroku](https://www.heroku.com/) as fast as possible. For added
-convenience, the templates use [Twitter's Bootstrap
-project](http://twitter.github.com/bootstrap/) to help reduce the amount
-of time it's takes you as a developer to go from an idea to a working
-site.
+Start an app server locally with `heroku local`, and test it with `curl -F "file=<your image file>" http://0.0.0.0:5000/`. 
 
-All of the CSS stylesheets are written using the [Less
-CSS](http://lesscss.org/) syntax (even Bootstrap's CSS). If you're using
-Mac OS X for development, make sure to check out [incident57's
-Less.app](http://incident57.com/less/).
 
-Alternatively, there's a [Less binary
-compiler](https://github.com/cloudhead/less.js/) that works similarly on
-the commandline, or you can always use the [`less.js`
-script](https://github.com/cloudhead/less.js/) in your website otherwise
--- it's incredibly fast. For instance, if you visit the [Less CSS
-site](http://lesscss.org), notice that it doesn't link to any CSS files.
+## Deployment
 
-Lastly, in Heroku's production environment, your Flask application will
-be served through [`gunicorn`](http://gunicorn.org/) and
-[`gevent`](http://www.gevent.org/).
+I basically followed heroku's instructions for deploying a flask app. `read_receipt_image.py` requires an API key to be saved in the environmental variable `AZURE_CV_KEY`. In order to get this into the heroku app (without storing it in git), use [config variables](https://devcenter.heroku.com/articles/config-vars). Once you're set up, you can push a new git commit directly to heroku with `git push heroku master`, and test it with `curl -F "file=<your image file>" https://<your_app_name>.herokuapp.com/``
 
 
-Why should I use this?
-----------------------
+## Status
 
-Everything I've learned from writing and maintaining the [Flask
-Engine](https://github.com/zachwill/flask-engine) template for Google
-App Engine has made its way into this repo, too. The goal is to make a
-simple repo that can be cloned and added to for the majority of projects
-going forward, while also staying minimal in size and complexity.
+I consider this to be about halfway to an beta version. Generally, it works well on a well-lit image taken by a sober person; however, for the use case I have in mind, it must be fairly robust to poor lighting conditions and camera shake.
 
+The preprocessing is fairly robust, but the OCR leaves a lot to be desired. A final version would require a lot more error checking and spell checking. In some cases, the OCR may read a word as "Subto al" and the current version does not correct such obvious misspellings. It should include logic that enforces "subtotal + tax = total", "sum of all item prices=subtotal". etc. It should fail gracefully if it can't read an image. 
 
-Instructions
-------------
-
-First, you'll need to clone the repo.
-
-    $ git clone git@github.com:zachwill/flask_heroku.git
-    $ cd flask_heroku
-
-Second, let's download `pip`, `virtualenv`, `foreman`, and the [`heroku`
-Ruby gem](http://devcenter.heroku.com/articles/using-the-cli).
-
-    $ sudo easy_install pip
-    $ sudo pip install virtualenv
-    $ sudo gem install foreman heroku
-
-Now, you can setup an isolated environment with `virtualenv`.
-
-    $ virtualenv --no-site-packages env
-    $ source env/bin/activate
-
-
-Installing Packages
---------------------
-
-### Gevent
-
-To use `gevent`, we'll need to install `libevent` for the
-`gevent` production server. If you're operating on a Linux OS, you can
-`apt-get install libevent-dev`. If you're using Mac OS X, consider
-installing the [homebrew](http://mxcl.github.com/homebrew/) package
-manager, and run the following command:
-
-    $ brew install libevent
-
-If you're using Mac OS X, you can also install `libevent` through [a DMG
-available on Rudix](http://rudix.org/packages-jkl.html#libevent).
-
-
-### Without Gevent
-
-If you'd rather use `gunicorn` without `gevent`, you just need to edit
-the `Procfile` and `requirements.txt`.
-
-First, edit the `Procfile` to look the following:
-
-    web: gunicorn -w 4 -b "0.0.0.0:$PORT" app:app
-
-Second, remove `gevent` from the `requirements.txt` file.
-
-### pip
-
-Then, let's get the requirements installed in your isolated test
-environment.
-
-    $ pip install -r requirements.txt
-
-
-Running Your Application
-------------------------
-
-Now, you can run the application locally.
-
-    $ foreman start
-
-You can also specify what port you'd prefer to use.
-
-    $ foreman start -p 5555
-
-
-Deploying
----------
-
-If you haven't [signed up for Heroku](https://api.heroku.com/signup), go
-ahead and do that. You should then be able to [add your SSH key to
-Heroku](http://devcenter.heroku.com/articles/quickstart), and also
-`heroku login` from the commandline.
-
-Now, to upload your application, you'll first need to do the
-following -- and obviously change `app_name` to the name of your
-application:
-
-    $ heroku create app_name -s cedar
-
-And, then you can push your application up to Heroku.
-
-    $ git push heroku master
-    $ heroku scale web=1
-
-Finally, we can make sure the application is up and running.
-
-    $ heroku ps
-
-Now, we can view the application in our web browser.
-
-    $ heroku open
-
-And, to deactivate `virtualenv` (once you've finished coding), you
-simply run the following command:
-
-    $ deactivate
-
-
-Next Steps
-----------
-
-After you've got your application up and running, there a couple next
-steps you should consider following.
-
-1. Create a new `README.md` file.
-2. Add your Google Analytics ID to the `base.html` template.
-3. Adjust the `author` and `description` `<meta>` tags in the
-   `base.html` template.
-4. Change the `humans.txt` and `favicon.ico` files in the `static`
-   directory.
-5. Change the `apple-touch` icons in the `static` directory.
-
-
-Reactivating the Virtual Environment
-------------------------------------
-
-If you haven't worked with `virtualenv` before, you'll need to
-reactivate the environment everytime you close or reload your terminal.
-
-    $ source env/bin/activate
-
-If you don't reactivate the environment, then you'll probably receive a
-screen full of errors when trying to run the application locally.
-
-
-Adding Requirements
--------------------
-
-In the course of creating your application, you may find yourself
-installing various Python modules with `pip` -- in which case you'll
-need to update the `requirements.txt` file. One way that this can be
-done is with `pip freeze`.
-
-    $ pip freeze > requirements.txt
-
-
-Custom Domains
---------------
-
-If your account is verified -- and your credit card is on file -- you
-can also easily add a custom domain to your application.
-
-    $ heroku addons:add custom_domains
-    $ heroku domains:add www.mydomainname.com
-
-You can add a [naked domain
-name](http://devcenter.heroku.com/articles/custom-domains), too.
-
-    $ heroku domains:add mydomainname.com
-
-Lastly, add the following A records to your DNS management tool.
-
-    75.101.163.44
-    75.101.145.87
-    174.129.212.2
+The scripts in this repo are a reasonable starting point for reading and parsing a photo of any sort of structured text document -- a check, a receipt, a form letter, etc.
